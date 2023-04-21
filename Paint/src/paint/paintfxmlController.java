@@ -4,8 +4,12 @@
  */
 package paint;
 
+
+import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -15,12 +19,19 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.PixelReader;
+import javafx.scene.image.PixelWriter;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javax.imageio.ImageIO;
 
 /**
  *
@@ -41,11 +52,20 @@ public class paintfxmlController implements Initializable {
     @FXML
     private Canvas canvas;
     
+    @FXML
+    private CheckBox eraser;
+   
+    
     GraphicsContext brushTool;
     
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        Image eraserIcon = new Image(getClass().getResourceAsStream("eraser.png"));
+        Image resizedIcon = resizeImage(eraserIcon, 20, 20);
+       
+        ImageView eraserImageView = new ImageView(resizedIcon);
+        eraser.setGraphic(eraserImageView);
         
         brushTool = canvas.getGraphicsContext2D();
         canvas.setOnMouseDragged(e -> {
@@ -58,7 +78,26 @@ public class paintfxmlController implements Initializable {
             }
         });
         
-    }    
+    }  
+    
+     private Image resizeImage(Image originalImage, double width, double height) {
+        // Create a new writable image with the desired width and height
+        WritableImage resizedImage = new WritableImage((int) width, (int) height);
+
+        // Get the pixel reader and writer for the original and resized images
+        PixelReader reader = originalImage.getPixelReader();
+        PixelWriter writer = resizedImage.getPixelWriter();
+
+        // Copy the original image data to the new resized image
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                writer.setArgb(x, y, reader.getArgb((int) (x * originalImage.getWidth() / width), (int) (y * originalImage.getHeight() / height)));
+            }
+        }
+
+        // Return the resized image
+        return resizedImage;
+    }
     
     @FXML
     public void newcanvas(ActionEvent e){
@@ -113,5 +152,20 @@ public class paintfxmlController implements Initializable {
         toolSelected = true;
     }
    
+    @FXML
+    public void onSave(){
+        try{
+            Image snapshot = canvas.snapshot(null, null);
+            ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null), "png", new File("paint.png"));
+        }catch(Exception e){
+            System.out.println("Failed to save image : " + e);
+        }
+    }
+    
+    @FXML
+     public void onExit(){
+         Platform.exit();
+    }
+    
     
 }
