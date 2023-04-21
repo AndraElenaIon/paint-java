@@ -62,7 +62,7 @@ public class paintfxmlController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         Image eraserIcon = new Image(getClass().getResourceAsStream("eraser.png"));
-        Image resizedIcon = resizeImage(eraserIcon, 20, 20);
+        Image resizedIcon = PaintUtils.resizeImage(eraserIcon, 20, 20);
        
         ImageView eraserImageView = new ImageView(resizedIcon);
         eraser.setGraphic(eraserImageView);
@@ -72,32 +72,18 @@ public class paintfxmlController implements Initializable {
             double size = Double.parseDouble(bsize.getText());
             double x = e.getX() - size / 2;
             double y = e.getY() - size / 2;
-            if(toolSelected && !bsize.getText().isEmpty()){
+            
+            //check if eraser tool is selected
+            if(eraser.isSelected()){
+                brushTool.clearRect(x, y, size, size);
+                //otherwise proceed with the brush
+            }else if(toolSelected && !bsize.getText().isEmpty()){
                 brushTool.setFill(colorpicker.getValue());
                 brushTool.fillRoundRect(x, y, size, size, size, size);
             }
         });
         
     }  
-    
-     private Image resizeImage(Image originalImage, double width, double height) {
-        // Create a new writable image with the desired width and height
-        WritableImage resizedImage = new WritableImage((int) width, (int) height);
-
-        // Get the pixel reader and writer for the original and resized images
-        PixelReader reader = originalImage.getPixelReader();
-        PixelWriter writer = resizedImage.getPixelWriter();
-
-        // Copy the original image data to the new resized image
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                writer.setArgb(x, y, reader.getArgb((int) (x * originalImage.getWidth() / width), (int) (y * originalImage.getHeight() / height)));
-            }
-        }
-
-        // Return the resized image
-        return resizedImage;
-    }
     
     @FXML
     public void newcanvas(ActionEvent e){
