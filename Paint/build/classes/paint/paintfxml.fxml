@@ -12,6 +12,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
 <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="paint.paintfxmlController">
@@ -36,7 +37,7 @@
                                 <Insets left="5.0" />
                             </padding>
                         </MenuBar>
-                        <Button mnemonicParsing="false" onAction="#newcanvas" text="New Canvas">
+                        <Button mnemonicParsing="false" onAction="#newCanvas" text="New Canvas">
                             <HBox.margin>
                                 <Insets left="10.0" top="5.0" />
                             </HBox.margin>
@@ -69,6 +70,10 @@
                </VBox.margin></ChoiceBox>
             </children>
         </VBox>
-        <Canvas fx:id="canvas" height="635.0" layoutX="7.0" layoutY="78.0" width="1267.0" />
+      <StackPane layoutX="7.0" layoutY="78.0" style="-fx-border-color: black; -fx-border-width: 1;">
+         <children>
+              <Canvas fx:id="canvas" height="635.0" width="1267.0" />
+         </children>
+      </StackPane>
     </children>
 </Pane>

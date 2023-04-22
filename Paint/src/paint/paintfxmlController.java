@@ -75,89 +75,96 @@ public class paintfxmlController implements Initializable {
         });
         brushTool = canvas.getGraphicsContext2D();
         canvas.setOnMouseDragged(e -> {
-            double size = Double.parseDouble(bsize.getText());
-            double x = e.getX() - size / 2;
-            double y = e.getY() - size / 2;
+    double size = Double.parseDouble(bsize.getText());
+    double x = e.getX() - size / 2;
+    double y = e.getY() - size / 2;
 
-            //check if eraser tool is selected
-            if (eraser.isSelected()) {
-                brushTool.clearRect(x, y, size, size);
-                //otherwise proceed with the brush
-            } else if (toolSelected && !bsize.getText().isEmpty()) {
+    // Check if eraser tool is selected
+    if (eraser.isSelected()) {
+        brushTool.clearRect(x, y, size, size);
+    } else if (toolSelected && !bsize.getText().isEmpty()) {
+        switch (currentBrushType) {
+            case "Circle":
                 brushTool.setFill(colorpicker.getValue());
-                switch (currentBrushType) {
-                    case "Circle":
-                        brushTool.fillOval(x, y, size, size);
-                        break;
-                    case "Square":
-                        brushTool.fillRect(x, y, size, size);
-                        break;
-                    case "Line":
-                        if (!isDrawing) {
-                            startX = x;
-                            startY = y;
-                            isDrawing = true;
-                        } else {
-                            brushTool.strokeLine(startX, startY, x, y);
-                            isDrawing = false;
-                        }
-                        break;
-                    default:
-                        brushTool.fillOval(x, y, size, size);
-                        break;
+                brushTool.fillOval(x, y, size, size);
+                break;
+            case "Square":
+                brushTool.setFill(colorpicker.getValue());
+                brushTool.fillRect(x, y, size, size);
+                break;
+            case "Line":
+                brushTool.setStroke(colorpicker.getValue());
+                brushTool.setLineWidth(size);
+                if (!isDrawing) {
+                    startX = x;
+                    startY = y;
+                    isDrawing = true;
+                } else {
+                    brushTool.strokeLine(startX, startY, x, y);
+                    isDrawing = false;
                 }
-            }
-        });
+                break;
+            default:
+                brushTool.setFill(colorpicker.getValue());
+                brushTool.fillOval(x, y, size, size);
+                break;
+        }
+    }
+});
+
 
     }
 
-    @FXML
-    public void newcanvas(ActionEvent e) {
-        TextField getCanvasWidth = new TextField();
-        getCanvasWidth.setPromptText("Width");
-        getCanvasWidth.setPrefWidth(150);
-        getCanvasWidth.setAlignment(Pos.CENTER);
+@FXML
+public void newCanvas(ActionEvent e) {
+    TextField getCanvasWidth = new TextField();
+    getCanvasWidth.setPromptText("Width");
+    getCanvasWidth.setPrefWidth(150);
+    getCanvasWidth.setAlignment(Pos.CENTER);
 
-        TextField getCanvasHeight = new TextField();
-        getCanvasHeight.setPromptText("Height");
-        getCanvasHeight.setPrefWidth(150);
-        getCanvasHeight.setAlignment(Pos.CENTER);
+    TextField getCanvasHeight = new TextField();
+    getCanvasHeight.setPromptText("Height");
+    getCanvasHeight.setPrefWidth(150);
+    getCanvasHeight.setAlignment(Pos.CENTER);
 
-        Button createButton = new Button();
-        createButton.setText("Create Canvas");
+    Button createButton = new Button();
+    createButton.setText("Create Canvas");
 
-        VBox vBox = new VBox();
-        vBox.setSpacing(5);
-        vBox.setAlignment(Pos.CENTER);
-        vBox.getChildren().addAll(getCanvasWidth, getCanvasHeight, createButton);
+    VBox vBox = new VBox();
+    vBox.setSpacing(5);
+    vBox.setAlignment(Pos.CENTER);
+    vBox.getChildren().addAll(getCanvasWidth, getCanvasHeight, createButton);
 
-        Stage createStage = new Stage();
-        AnchorPane root = new AnchorPane();
-        root.setPrefWidth(200);
-        root.setPrefHeight(200);
-        root.getChildren().add(vBox);
+    Stage createStage = new Stage();
+    AnchorPane root = new AnchorPane();
+    root.setPrefWidth(200);
+    root.setPrefHeight(200);
+    root.getChildren().add(vBox);
 
-        Scene CanvasScene = new Scene(root);
-        createStage.setTitle("Create Canvas");
-        createStage.setScene(CanvasScene);
-        createStage.show();
+    Scene CanvasScene = new Scene(root);
+    createStage.setTitle("Create Canvas");
+    createStage.setScene(CanvasScene);
+    createStage.show();
 
-        createButton.setOnAction((ActionEvent event) -> {
-            double canvasWidthReceived = Double.parseDouble(getCanvasWidth.getText());
-            double canvasHeightReceived = Double.parseDouble(getCanvasHeight.getText());
-            Canvas newCanvas = new Canvas();
-            newCanvas.setWidth(canvasWidthReceived);
-            newCanvas.setHeight(canvasHeightReceived);
-            Pane parentContainer = (Pane) canvas.getParent();
-            int canvasIndex = parentContainer.getChildren().indexOf(canvas);
-            parentContainer.getChildren().remove(canvas);
-            parentContainer.getChildren().add(canvasIndex, newCanvas);
+    createButton.setOnAction((ActionEvent event) -> {
+        double canvasWidthReceived = Double.parseDouble(getCanvasWidth.getText());
+        double canvasHeightReceived = Double.parseDouble(getCanvasHeight.getText());
 
-            canvas = newCanvas;
-            createStage.close();
-        });
+        clearCanvas(canvas);
+        canvas.setWidth(canvasWidthReceived);
+        canvas.setHeight(canvasHeightReceived);
+        createStage.close();
+    });
+}
 
-    }
+private void clearCanvas(Canvas canvas) {
+    GraphicsContext gc = canvas.getGraphicsContext2D();
+    gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+}
+
+
+
+
 
     @FXML
     public void toolselected(ActionEvent e) {
