@@ -29,6 +29,12 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javax.imageio.ImageIO;
+import javafx.scene.effect.BlurType;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.InnerShadow;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.StrokeLineCap;
+import javafx.scene.shape.StrokeLineJoin;
 
 /**
  *
@@ -67,108 +73,169 @@ public class paintfxmlController implements Initializable {
         ImageView eraserImageView = new ImageView(resizedIcon);
         eraser.setGraphic(eraserImageView);
 
-        brushTypeChoiceBox.getItems().addAll("Circle", "Square", "Line");
+        brushTypeChoiceBox.getItems().addAll("Circle", "Square", "Line", "Calligraphy", "Crayon", "Airbrush", "Natural Pencil");
+
         brushTypeChoiceBox.setValue("Circle");
 
         brushTypeChoiceBox.setOnAction(e -> {
             currentBrushType = brushTypeChoiceBox.getValue();
         });
+
+        canvas.setOnMouseReleased(e -> {
+            if (currentBrushType.equals("Natural Pencil")) {
+                startX = -1;
+                startY = -1;
+            } else {
+                isDrawing = false;
+            }
+        });
+
         brushTool = canvas.getGraphicsContext2D();
+
+        startX = -1;
+        startY = -1;
+
         canvas.setOnMouseDragged(e -> {
-    double size = Double.parseDouble(bsize.getText());
-    double x = e.getX() - size / 2;
-    double y = e.getY() - size / 2;
+            double size = Double.parseDouble(bsize.getText());
+            double x = e.getX() - size / 2;
+            double y = e.getY() - size / 2;
 
-    // Check if eraser tool is selected
-    if (eraser.isSelected()) {
-        brushTool.clearRect(x, y, size, size);
-    } else if (toolSelected && !bsize.getText().isEmpty()) {
-        switch (currentBrushType) {
-            case "Circle":
+            // Check if eraser tool is selected
+            if (eraser.isSelected()) {
+                brushTool.clearRect(x, y, size, size);
+                // Otherwise proceed with the brush
+            } else if (toolSelected && !bsize.getText().isEmpty()) {
                 brushTool.setFill(colorpicker.getValue());
-                brushTool.fillOval(x, y, size, size);
-                break;
-            case "Square":
-                brushTool.setFill(colorpicker.getValue());
-                brushTool.fillRect(x, y, size, size);
-                break;
-            case "Line":
-                brushTool.setStroke(colorpicker.getValue());
-                brushTool.setLineWidth(size);
-                if (!isDrawing) {
-                    startX = x;
-                    startY = y;
-                    isDrawing = true;
-                } else {
-                    brushTool.strokeLine(startX, startY, x, y);
-                    isDrawing = false;
+                switch (currentBrushType) {
+                    case "Circle":
+                        brushTool.setFill(colorpicker.getValue());
+                        brushTool.fillOval(x, y, size, size);
+                        break;
+                    case "Square":
+                        brushTool.setFill(colorpicker.getValue());
+                        brushTool.fillRect(x, y, size, size);
+                        break;
+                    case "Line":
+                        brushTool.setStroke(colorpicker.getValue());
+                        brushTool.setLineWidth(size);
+                        if (!isDrawing) {
+                            startX = x;
+                            startY = y;
+                            isDrawing = true;
+                        } else {
+                            brushTool.strokeLine(startX, startY, x, y);
+                            isDrawing = false;
+                        }
+                        break;
+                    case "Calligraphy":
+                        brushTool.setFill(colorpicker.getValue());
+                        if (!isDrawing) {
+                            startX = x;
+                            startY = y;
+                            isDrawing = true;
+                        } else {
+                            double angle = Math.atan2(e.getY() - startY, e.getX() - startX);
+                            double offsetX = size / 2 * Math.sin(angle);
+                            double offsetY = size / 2 * Math.cos(angle);
+                            brushTool.fillPolygon(new double[]{startX + offsetX, startX - offsetX, x - offsetX, x + offsetX},
+                                    new double[]{startY - offsetY, startY + offsetY, y + offsetY, y - offsetY}, 4);
+                            startX = x;
+                            startY = y;
+                        }
+                        break;
+                    case "Airbrush":
+                        brushTool.setEffect(new DropShadow(BlurType.THREE_PASS_BOX, colorpicker.getValue(), size * 0.8, 0, 0, 0));
+                        brushTool.setFill(colorpicker.getValue());
+                        brushTool.fillOval(x, y, size, size);
+                        brushTool.setEffect(null);
+                        break;
+                    case "Crayon":
+                        brushTool.setEffect(new InnerShadow(BlurType.ONE_PASS_BOX, colorpicker.getValue().darker(), 5, 0.1, 1, 1));
+                        brushTool.setFill(colorpicker.getValue());
+                        brushTool.fillOval(x, y, size, size);
+                        brushTool.setEffect(null);
+                        break;
+                    case "Natural Pencil":
+                        brushTool.setEffect(new InnerShadow(BlurType.ONE_PASS_BOX, colorpicker.getValue().darker(), 2, 0.1, 1, 1));
+                        brushTool.setStroke(colorpicker.getValue());
+                        brushTool.setLineWidth(size * 0.6);
+                        if (startX != -1 && startY != -1) {
+                            brushTool.strokeLine(startX, startY, x, y);
+                        } else {
+                            startX = x;
+                            startY = y;
+                        }
+                        startX = x;
+                        startY = y;
+                        brushTool.setEffect(null);
+                        break;
+
                 }
-                break;
-            default:
-                brushTool.setFill(colorpicker.getValue());
-                brushTool.fillOval(x, y, size, size);
-                break;
-        }
-    }
-});
-
+            }
+        });
 
     }
 
-@FXML
-public void newCanvas(ActionEvent e) {
-    TextField getCanvasWidth = new TextField();
-    getCanvasWidth.setPromptText("Width");
-    getCanvasWidth.setPrefWidth(150);
-    getCanvasWidth.setAlignment(Pos.CENTER);
+    @FXML
+    public void newCanvas(ActionEvent e) {
+        TextField getCanvasWidth = new TextField();
+        getCanvasWidth.setPromptText("Width");
+        getCanvasWidth.setPrefWidth(150);
+        getCanvasWidth.setAlignment(Pos.CENTER);
 
-    TextField getCanvasHeight = new TextField();
-    getCanvasHeight.setPromptText("Height");
-    getCanvasHeight.setPrefWidth(150);
-    getCanvasHeight.setAlignment(Pos.CENTER);
+        TextField getCanvasHeight = new TextField();
+        getCanvasHeight.setPromptText("Height");
+        getCanvasHeight.setPrefWidth(150);
+        getCanvasHeight.setAlignment(Pos.CENTER);
 
-    Button createButton = new Button();
-    createButton.setText("Create Canvas");
+        Button createButton = new Button();
+        createButton.setText("Create Canvas");
 
-    VBox vBox = new VBox();
-    vBox.setSpacing(5);
-    vBox.setAlignment(Pos.CENTER);
-    vBox.getChildren().addAll(getCanvasWidth, getCanvasHeight, createButton);
+        VBox vBox = new VBox();
+        vBox.setSpacing(5);
+        vBox.setAlignment(Pos.CENTER);
+        vBox.getChildren().addAll(getCanvasWidth, getCanvasHeight, createButton);
 
-    Stage createStage = new Stage();
-    AnchorPane root = new AnchorPane();
-    root.setPrefWidth(200);
-    root.setPrefHeight(200);
-    root.getChildren().add(vBox);
+        Stage createStage = new Stage();
+        AnchorPane root = new AnchorPane();
+        root.setPrefWidth(200);
+        root.setPrefHeight(200);
+        root.getChildren().add(vBox);
 
-    Scene CanvasScene = new Scene(root);
-    createStage.setTitle("Create Canvas");
-    createStage.setScene(CanvasScene);
-    createStage.show();
+        Scene CanvasScene = new Scene(root);
+        createStage.setTitle("Create Canvas");
+        createStage.setScene(CanvasScene);
+        createStage.show();
 
-    createButton.setOnAction((ActionEvent event) -> {
-        double canvasWidthReceived = Double.parseDouble(getCanvasWidth.getText());
-        double canvasHeightReceived = Double.parseDouble(getCanvasHeight.getText());
+        createButton.setOnAction((ActionEvent event) -> {
+            double canvasWidthReceived = Double.parseDouble(getCanvasWidth.getText());
+            double canvasHeightReceived = Double.parseDouble(getCanvasHeight.getText());
 
-        clearCanvas(canvas);
-        canvas.setWidth(canvasWidthReceived);
-        canvas.setHeight(canvasHeightReceived);
-        createStage.close();
-    });
-}
+            clearCanvas(canvas);
+            canvas.setWidth(canvasWidthReceived);
+            canvas.setHeight(canvasHeightReceived);
+            resetGraphicsContext(brushTool); // Reset GraphicsContext properties
+            createStage.close();
+        });
+    }
 
-private void clearCanvas(Canvas canvas) {
-    GraphicsContext gc = canvas.getGraphicsContext2D();
-    gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-}
-
-
-
-
+    private void clearCanvas(Canvas canvas) {
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+    }
 
     @FXML
     public void toolselected(ActionEvent e) {
         toolSelected = true;
+    }
+
+    private void resetGraphicsContext(GraphicsContext gc) {
+        gc.setEffect(null);
+        gc.setLineWidth(1);
+        gc.setStroke(Color.BLACK);
+        gc.setFill(Color.BLACK);
+        gc.setLineCap(StrokeLineCap.ROUND);
+        gc.setLineJoin(StrokeLineJoin.ROUND);
     }
 
     @FXML
