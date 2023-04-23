@@ -100,29 +100,7 @@
                                         <Insets left="20.0" top="5.0" />
                                     </HBox.margin>
                                 </ChoiceBox>
-                                <ToolBar prefHeight="24.0" prefWidth="191.0">
-                                    <items>
-                                        <ToggleButton fx:id="rectangleToggleButton" toggleGroup="$shapeToggleGroup" onAction="#onShapeSelected">
-                                            <graphic>
-                                                <ImageView fx:id="rectangleImageView" />
-                                            </graphic>
-                                        </ToggleButton>
-                                        <ToggleButton fx:id="squareToggleButton" toggleGroup="$shapeToggleGroup" onAction="#onShapeSelected">
-                                            <graphic>
-                                                <ImageView fx:id="squareImageView" />
-                                            </graphic>
-                                        </ToggleButton>
-                                        <ToggleButton fx:id="circleToggleButton" toggleGroup="$shapeToggleGroup" onAction="#onShapeSelected">
-                                            <graphic>
-                                                <ImageView fx:id="circleImageView" />
-                                            </graphic>
-                                        </ToggleButton>
-
-                                    </items>
-                                    <HBox.margin>
-                                        <Insets left="20.0" />
-                                    </HBox.margin>
-                                </ToolBar>
+                                
                             </children>
                             <opaqueInsets>
                                 <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />

@@ -35,8 +35,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.StackPane;
 
 /**
@@ -67,23 +65,6 @@ public class paintfxmlController implements Initializable {
     private ScrollPane scrollPane;
     @FXML
     private Pane scrollContent;
-    @FXML
-    private ToggleGroup shapeToggleGroup;
-
-    @FXML
-    private ToggleButton rectangleToggleButton;
-
-    @FXML
-    private ToggleButton squareToggleButton;
-
-    @FXML
-    private ToggleButton circleToggleButton;
-    @FXML
-    private ImageView rectangleImageView;
-    @FXML
-    private ImageView squareImageView;
-    @FXML
-    private ImageView circleImageView;
 
     GraphicsContext brushTool;
 
@@ -109,18 +90,6 @@ public class paintfxmlController implements Initializable {
 
         eraser.setGraphic(eraserImageView);
 
-        Image rectangleIcon = new Image(getClass().getResourceAsStream("/resources/rectangle-vertical.png"));
-        Image resizedRectangleIcon = PaintUtils.resizeImage(rectangleIcon, 30, 30);
-        rectangleImageView.setImage(resizedRectangleIcon);
-
-        Image squareIcon = new Image(getClass().getResourceAsStream("/resources/square.png"));
-        Image resizedSquareIcon = PaintUtils.resizeImage(squareIcon, 30, 30);
-        squareImageView.setImage(resizedSquareIcon);
-
-        Image circleIcon = new Image(getClass().getResourceAsStream("/resources/circle.png"));
-        Image resizedCircleIcon = PaintUtils.resizeImage(circleIcon, 30, 30);
-        circleImageView.setImage(resizedCircleIcon);
-
         brushTypeChoiceBox.getItems().addAll("Circle", "Square", "Line", "Calligraphy", "Crayon", "Airbrush", "Natural Pencil");
 
         brushTypeChoiceBox.setValue("Circle");
@@ -135,7 +104,9 @@ public class paintfxmlController implements Initializable {
                 startY = -1;
             } else {
                 isDrawing = false;
+
             }
+
         });
 
         brushTool = canvas.getGraphicsContext2D();
@@ -154,6 +125,7 @@ public class paintfxmlController implements Initializable {
                 // Otherwise proceed with the brush
             } else if (toolSelected && !bsize.getText().isEmpty()) {
                 brushTool.setFill(colorpicker.getValue());
+
                 switch (currentBrushType) {
                     case "Circle":
                         brushTool.setFill(colorpicker.getValue());
@@ -222,11 +194,6 @@ public class paintfxmlController implements Initializable {
             }
         });
 
-    }
-
-    @FXML
-    private void onShapeSelected(ActionEvent event) {
-        // Implement shape drawing logic here
     }
 
     @FXML
