@@ -16,6 +16,8 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
@@ -31,9 +33,6 @@ import javax.imageio.ImageIO;
 import javafx.scene.effect.BlurType;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.InnerShadow;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.StrokeLineCap;
-import javafx.scene.shape.StrokeLineJoin;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.StackPane;
 
@@ -71,42 +70,37 @@ public class paintfxmlController implements Initializable {
 
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+
         scrollContent.prefWidthProperty().bind(canvas.widthProperty());
         scrollContent.prefHeightProperty().bind(canvas.heightProperty());
 
         Image eraserIcon = new Image(getClass().getResourceAsStream("/resources/eraser.png"));
         Image resizedIcon = PaintUtils.resizeImage(eraserIcon, 20, 20);
-
         ImageView eraserImageView = new ImageView(resizedIcon);
+        eraser.setGraphic(eraserImageView);
 
         stackPane.prefWidthProperty().bind(canvas.widthProperty());
         stackPane.prefHeightProperty().bind(canvas.heightProperty());
 
-        eraser.setGraphic(eraserImageView);
-
-        brushTypeChoiceBox.getItems().addAll("Circle", "Square", "Line", "Calligraphy", "Crayon", "Airbrush", "Natural Pencil");
-
+        brushTypeChoiceBox.getItems().addAll("Circle", "Square", "Line", "Calligraphy", "Crayon", "Airbrush", "Natural_Pencil");
         brushTypeChoiceBox.setValue("Circle");
-
         brushTypeChoiceBox.setOnAction(e -> {
             currentBrushType = brushTypeChoiceBox.getValue();
-        });
-
-        canvas.setOnMouseReleased(e -> {
-            if (currentBrushType.equals("Natural Pencil")) {
-                startX = -1;
-                startY = -1;
-            } else {
-                isDrawing = false;
-
-            }
-
         });
 
         brushTool = canvas.getGraphicsContext2D();
 
         startX = -1;
         startY = -1;
+
+        canvas.setOnMouseReleased(e -> {
+            if (currentBrushType.equals("Natural_Pencil")) {
+                startX = -1;
+                startY = -1;
+            } else {
+                isDrawing = false;
+            }
+        });
 
         canvas.setOnMouseDragged(e -> {
             double size = Double.parseDouble(bsize.getText());
@@ -120,134 +114,69 @@ public class paintfxmlController implements Initializable {
             } else if (toolSelected && !bsize.getText().isEmpty()) {
                 brushTool.setFill(colorpicker.getValue());
 
-                switch (currentBrushType) {
-                    case "Circle":
-                        brushTool.setFill(colorpicker.getValue());
-                        brushTool.fillOval(x, y, size, size);
-                        break;
-                    case "Square":
-                        brushTool.setFill(colorpicker.getValue());
-                        brushTool.fillRect(x, y, size, size);
-                        break;
-                    case "Line":
-                        brushTool.setStroke(colorpicker.getValue());
-                        brushTool.setLineWidth(size);
-                        if (!isDrawing) {
-                            startX = x;
-                            startY = y;
-                            isDrawing = true;
-                        } else {
-                            brushTool.strokeLine(startX, startY, x, y);
-                            isDrawing = false;
-                        }
-                        break;
-                    case "Calligraphy":
-                        brushTool.setFill(colorpicker.getValue());
-                        if (!isDrawing) {
-                            startX = x;
-                            startY = y;
-                            isDrawing = true;
-                        } else {
-                            double angle = Math.atan2(e.getY() - startY, e.getX() - startX);
-                            double offsetX = size / 2 * Math.sin(angle);
-                            double offsetY = size / 2 * Math.cos(angle);
-                            brushTool.fillPolygon(new double[]{startX + offsetX, startX - offsetX, x - offsetX, x + offsetX},
-                                    new double[]{startY - offsetY, startY + offsetY, y + offsetY, y - offsetY}, 4);
-                            startX = x;
-                            startY = y;
-                        }
-                        break;
-                    case "Airbrush":
-                        brushTool.setEffect(new DropShadow(BlurType.THREE_PASS_BOX, colorpicker.getValue(), size * 0.8, 0, 0, 0));
-                        brushTool.setFill(colorpicker.getValue());
-                        brushTool.fillOval(x, y, size, size);
-                        brushTool.setEffect(null);
-                        break;
-                    case "Crayon":
-                        brushTool.setEffect(new InnerShadow(BlurType.ONE_PASS_BOX, colorpicker.getValue().darker(), 5, 0.1, 1, 1));
-                        brushTool.setFill(colorpicker.getValue());
-                        brushTool.fillOval(x, y, size, size);
-                        brushTool.setEffect(null);
-                        break;
-                    case "Natural Pencil":
-                        brushTool.setEffect(new InnerShadow(BlurType.ONE_PASS_BOX, colorpicker.getValue().darker(), 2, 0.1, 1, 1));
-                        brushTool.setStroke(colorpicker.getValue());
-                        brushTool.setLineWidth(size * 0.6);
-                        if (startX != -1 && startY != -1) {
-                            brushTool.strokeLine(startX, startY, x, y);
-                        } else {
-                            startX = x;
-                            startY = y;
-                        }
-                        startX = x;
-                        startY = y;
-                        brushTool.setEffect(null);
-                        break;
-
-                }
+                BrushType currentBrush = BrushType.valueOf(currentBrushType.toUpperCase());
+                double[] updatedValues = currentBrush.draw(brushTool, colorpicker, x, y, size, isDrawing, startX, startY, e);
+                isDrawing = updatedValues[0] == 1.0;
+                startX = updatedValues[1];
+                startY = updatedValues[2];
             }
         });
 
     }
 
-   public void newCanvas(ActionEvent e) {
-    TextField getCanvasWidth = new TextField();
-    getCanvasWidth.setPromptText("Width");
-    getCanvasWidth.setStyle("-fx-pref-width: 200px; -fx-max-width: 200px; -fx-pref-height: 40px;");
-    getCanvasWidth.setAlignment(Pos.CENTER);
+    @FXML
+    public void newCanvas(ActionEvent e) {
+        TextField getCanvasWidth = new TextField();
+        getCanvasWidth.setPromptText("Width");
+        getCanvasWidth.setStyle("-fx-pref-width: 200px; -fx-max-width: 200px; -fx-pref-height: 40px;");
+        getCanvasWidth.setAlignment(Pos.CENTER);
 
-    TextField getCanvasHeight = new TextField();
-    getCanvasHeight.setPromptText("Height");
-    getCanvasHeight.setStyle("-fx-pref-width: 200px; -fx-max-width: 200px; -fx-pref-height: 40px;");
-    getCanvasHeight.setAlignment(Pos.CENTER);
+        TextField getCanvasHeight = new TextField();
+        getCanvasHeight.setPromptText("Height");
+        getCanvasHeight.setStyle("-fx-pref-width: 200px; -fx-max-width: 200px; -fx-pref-height: 40px;");
+        getCanvasHeight.setAlignment(Pos.CENTER);
 
-    Button createButton = new Button();
-    createButton.setText("Create Canvas");
-    createButton.setStyle("-fx-pref-width: 250px; -fx-max-width: 250px; -fx-pref-height: 50px;");
+        Button createButton = new Button();
+        createButton.setText("Create Canvas");
+        createButton.setStyle("-fx-pref-width: 250px; -fx-max-width: 250px; -fx-pref-height: 50px;");
 
-    VBox vBox = new VBox();
-    vBox.setSpacing(5);
-    vBox.setAlignment(Pos.CENTER);
-    vBox.getChildren().addAll(getCanvasWidth, getCanvasHeight, createButton);
+        VBox vBox = new VBox();
+        vBox.setSpacing(5);
+        vBox.setAlignment(Pos.CENTER);
+        vBox.getChildren().addAll(getCanvasWidth, getCanvasHeight, createButton);
 
-    Stage createStage = new Stage();
-    AnchorPane root = new AnchorPane();
-    root.getChildren().add(vBox);
+        Stage createStage = new Stage();
+        AnchorPane root = new AnchorPane();
+        root.getChildren().add(vBox);
 
-    // Calculate the preferred width and height based on the content
-    double prefWidth = createButton.getWidth() + 50;
-    double prefHeight = getCanvasWidth.getHeight() + getCanvasHeight.getHeight() + createButton.getHeight() + 60;
+        // Calculate the preferred width and height based on the content
+        double prefWidth = createButton.getWidth() + 50;
+        double prefHeight = getCanvasWidth.getHeight() + getCanvasHeight.getHeight() + createButton.getHeight() + 60;
 
-    root.setPrefWidth(prefWidth);
-    root.setPrefHeight(prefHeight);
+        root.setPrefWidth(prefWidth);
+        root.setPrefHeight(prefHeight);
 
-    // Set the top, bottom, left, and right anchors of the VBox to center it in the AnchorPane
-    AnchorPane.setTopAnchor(vBox, (root.getPrefHeight() - vBox.getBoundsInParent().getHeight()) / 2);
-    AnchorPane.setBottomAnchor(vBox, (root.getPrefHeight() - vBox.getBoundsInParent().getHeight()) / 2);
-    AnchorPane.setLeftAnchor(vBox, (root.getPrefWidth() - vBox.getBoundsInParent().getWidth()) / 2);
-    AnchorPane.setRightAnchor(vBox, (root.getPrefWidth() - vBox.getBoundsInParent().getWidth()) / 2);
+        // Set the top, bottom, left, and right anchors of the VBox to center it in the AnchorPane
+        AnchorPane.setTopAnchor(vBox, (root.getPrefHeight() - vBox.getBoundsInParent().getHeight()) / 2);
+        AnchorPane.setBottomAnchor(vBox, (root.getPrefHeight() - vBox.getBoundsInParent().getHeight()) / 2);
+        AnchorPane.setLeftAnchor(vBox, (root.getPrefWidth() - vBox.getBoundsInParent().getWidth()) / 2);
+        AnchorPane.setRightAnchor(vBox, (root.getPrefWidth() - vBox.getBoundsInParent().getWidth()) / 2);
 
-    Scene canvasScene = new Scene(root);
-    createStage.setTitle("Create Canvas");
-    createStage.setScene(canvasScene);
-    createStage.show();
+        Scene canvasScene = new Scene(root);
+        createStage.setTitle("Create Canvas");
+        createStage.setScene(canvasScene);
+        createStage.show();
 
-    createButton.setOnAction((ActionEvent event) -> {
-        double canvasWidthReceived = Double.parseDouble(getCanvasWidth.getText());
-        double canvasHeightReceived = Double.parseDouble(getCanvasHeight.getText());
+        createButton.setOnAction((ActionEvent event) -> {
+            double canvasWidthReceived = Double.parseDouble(getCanvasWidth.getText());
+            double canvasHeightReceived = Double.parseDouble(getCanvasHeight.getText());
 
-        clearCanvas(canvas);
-        canvas.setWidth(canvasWidthReceived);
-        canvas.setHeight(canvasHeightReceived);
-        resetGraphicsContext(brushTool); // Reset GraphicsContext properties
-        createStage.close();
-    });
-}
-
-
-    private void clearCanvas(Canvas canvas) {
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+            PaintUtils.clearCanvas(canvas);
+            canvas.setWidth(canvasWidthReceived);
+            canvas.setHeight(canvasHeightReceived);
+            PaintUtils.resetGraphicsContext(brushTool); // Reset GraphicsContext properties
+            createStage.close();
+        });
     }
 
     @FXML
@@ -255,24 +184,31 @@ public class paintfxmlController implements Initializable {
         toolSelected = true;
     }
 
-    private void resetGraphicsContext(GraphicsContext gc) {
-        gc.setEffect(null);
-        gc.setLineWidth(1);
-        gc.setStroke(Color.BLACK);
-        gc.setFill(Color.BLACK);
-        gc.setLineCap(StrokeLineCap.ROUND);
-        gc.setLineJoin(StrokeLineJoin.ROUND);
-    }
-
     @FXML
-    public void onSave() {
-        try {
-            Image snapshot = canvas.snapshot(null, null);
-            ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null), "png", new File("paint.png"));
-        } catch (Exception e) {
-            System.out.println("Failed to save image : " + e);
-        }
+public void onSave() {
+    try {
+        Image snapshot = canvas.snapshot(null, null);
+        ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null), "png", new File("paint.png"));
+
+        // Show success message
+        Alert successAlert = new Alert(AlertType.INFORMATION);
+        successAlert.setTitle("Success");
+        successAlert.setHeaderText(null);
+        successAlert.setContentText("Image saved successfully!");
+        successAlert.showAndWait();
+
+    } catch (Exception e) {
+        System.out.println("Failed to save image : " + e);
+
+        // Show error message
+        Alert errorAlert = new Alert(AlertType.ERROR);
+        errorAlert.setTitle("Error");
+        errorAlert.setHeaderText(null);
+        errorAlert.setContentText("Failed to save image: " + e.getMessage());
+        errorAlert.showAndWait();
     }
+}
+
 
     @FXML
     public void onExit() {
