@@ -36,6 +36,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
 import javafx.beans.binding.Bindings;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.StackPane;
 
 /**
@@ -62,6 +63,10 @@ public class paintfxmlController implements Initializable {
     private ChoiceBox<String> brushTypeChoiceBox;
     @FXML
     private StackPane stackPane;
+    @FXML
+    private ScrollPane scrollPane;
+    @FXML
+    private Pane scrollContent;
 
     GraphicsContext brushTool;
 
@@ -71,11 +76,17 @@ public class paintfxmlController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+        scrollContent.prefWidthProperty().bind(canvas.widthProperty());
+        scrollContent.prefHeightProperty().bind(canvas.heightProperty());
+
         Image eraserIcon = new Image(getClass().getResourceAsStream("eraser.png"));
         Image resizedIcon = PaintUtils.resizeImage(eraserIcon, 20, 20);
 
         ImageView eraserImageView = new ImageView(resizedIcon);
-        
+
         stackPane.prefWidthProperty().bind(canvas.widthProperty());
         stackPane.prefHeightProperty().bind(canvas.heightProperty());
 
