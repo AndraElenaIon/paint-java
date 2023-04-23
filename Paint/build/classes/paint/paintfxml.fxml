@@ -98,7 +98,7 @@
                                 </ChoiceBox>
                                 <Label text="Zoom">
                                     <HBox.margin>
-                                        <Insets left="20.0" top="5.0" />
+                                        <Insets left="20.0" right="10.0" top="5.0" />
                                     </HBox.margin>
                                     <font>
                                         <Font name="System Bold" size="12.0" />
@@ -117,7 +117,7 @@
                 </VBox>
                 <StackPane fx:id="stackPane" layoutX="14.0" layoutY="80.0" prefHeight="626.0" prefWidth="1260.0" style="-fx-border-color: black; -fx-border-width: 1;">
                     <children>
-                  <ScrollPane fx:id="scrollPaneCanv" fitToHeight="true" fitToWidth="true" pannable="true" onScroll="#onScroll">
+                  <ScrollPane fx:id="scrollPaneCanv" fitToHeight="true" fitToWidth="true" pannable="true">
                      <StackPane.margin>
                         <Insets />
                      </StackPane.margin>
