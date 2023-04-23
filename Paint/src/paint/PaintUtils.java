@@ -10,6 +10,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
@@ -47,6 +48,24 @@ public class PaintUtils {
         gc.setFill(Color.BLACK);
         gc.setLineCap(StrokeLineCap.ROUND);
         gc.setLineJoin(StrokeLineJoin.ROUND);
+    }
+    public static void brushHandler(MouseEvent e) {
+        double size = Double.parseDouble(bsize.getText());
+        double x = e.getX() - size / 2;
+        double y = e.getY() - size / 2;
+
+        // Check if eraser tool is selected
+        if (eraser.isSelected()) {
+            brushTool.clearRect(x, y, size, size);
+        } else if (!bsize.getText().isEmpty()) {
+            brushTool.setFill(colorpicker.getValue());
+
+            BrushType currentBrush = BrushType.valueOf(currentBrushType.toUpperCase());
+            double[] updatedValues = currentBrush.draw(brushTool, colorpicker, x, y, size, isDrawing, startX, startY, e);
+            isDrawing = updatedValues[0] == 1.0;
+            startX = updatedValues[1];
+            startY = updatedValues[2];
+        }
     }
     
 }

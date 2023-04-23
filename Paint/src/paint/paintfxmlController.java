@@ -8,11 +8,14 @@ import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -30,10 +33,9 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javax.imageio.ImageIO;
-import javafx.scene.effect.BlurType;
-import javafx.scene.effect.DropShadow;
-import javafx.scene.effect.InnerShadow;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.StackPane;
 
 /**
@@ -44,29 +46,49 @@ public class paintfxmlController implements Initializable {
 
     @FXML
     private ColorPicker colorpicker;
+
     @FXML
     private TextField bsize;
+
     @FXML
     private Canvas canvas;
+
     @FXML
     private CheckBox eraser;
+
     @FXML
     private ChoiceBox<String> brushTypeChoiceBox;
+
     @FXML
     private StackPane stackPane;
+
     @FXML
     private ScrollPane scrollPane;
+
     @FXML
     private Pane scrollContent;
 
+    @FXML
+    private Button zoomInButton;
+
+    @FXML
+    private Button zoomOutButton;
+
+    @FXML
     GraphicsContext brushTool;
+
+    @FXML
+    private Group canvasGroup;
+
     private String currentBrushType = "Circle";
     private boolean isDrawing = false;
     private double startX, startY;
-    boolean toolSelected = false;
+    private final DoubleProperty zoomLevel = new SimpleDoubleProperty(1.0);
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        startX = -1;
+        startY = -1;
 
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
@@ -88,10 +110,12 @@ public class paintfxmlController implements Initializable {
             currentBrushType = brushTypeChoiceBox.getValue();
         });
 
-        brushTool = canvas.getGraphicsContext2D();
+        canvas.scaleXProperty().bind(zoomLevel);
+        canvas.scaleYProperty().bind(zoomLevel);
+        zoomInButton.setOnAction(e -> onZoomIn());
+        zoomOutButton.setOnAction(e -> onZoomOut());
 
-        startX = -1;
-        startY = -1;
+        brushTool = canvas.getGraphicsContext2D();
 
         canvas.setOnMouseReleased(e -> {
             if (currentBrushType.equals("Natural_Pencil")) {
@@ -102,25 +126,7 @@ public class paintfxmlController implements Initializable {
             }
         });
 
-        canvas.setOnMouseDragged(e -> {
-            double size = Double.parseDouble(bsize.getText());
-            double x = e.getX() - size / 2;
-            double y = e.getY() - size / 2;
-
-            // Check if eraser tool is selected
-            if (eraser.isSelected()) {
-                brushTool.clearRect(x, y, size, size);
-                // Otherwise proceed with the brush
-            } else if (toolSelected && !bsize.getText().isEmpty()) {
-                brushTool.setFill(colorpicker.getValue());
-
-                BrushType currentBrush = BrushType.valueOf(currentBrushType.toUpperCase());
-                double[] updatedValues = currentBrush.draw(brushTool, colorpicker, x, y, size, isDrawing, startX, startY, e);
-                isDrawing = updatedValues[0] == 1.0;
-                startX = updatedValues[1];
-                startY = updatedValues[2];
-            }
-        });
+        canvas.setOnMouseDragged(this::brushHandler);
 
     }
 
@@ -180,39 +186,86 @@ public class paintfxmlController implements Initializable {
     }
 
     @FXML
-    public void toolselected(ActionEvent e) {
-        toolSelected = true;
+    public void toolselected(ActionEvent event) {
+        canvas.setOnMouseDragged(this::brushHandler);
+    }
+
+    private void brushHandler(MouseEvent e) {
+        double size = Double.parseDouble(bsize.getText());
+        double x = e.getX() - size / 2;
+        double y = e.getY() - size / 2;
+
+        // Check if eraser tool is selected
+        if (eraser.isSelected()) {
+            brushTool.clearRect(x, y, size, size);
+        } else if (!bsize.getText().isEmpty()) {
+            brushTool.setFill(colorpicker.getValue());
+
+            BrushType currentBrush = BrushType.valueOf(currentBrushType.toUpperCase());
+            double[] updatedValues = currentBrush.draw(brushTool, colorpicker, x, y, size, isDrawing, startX, startY, e);
+            isDrawing = updatedValues[0] == 1.0;
+            startX = updatedValues[1];
+            startY = updatedValues[2];
+        }
     }
 
     @FXML
-public void onSave() {
-    try {
-        Image snapshot = canvas.snapshot(null, null);
-        ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null), "png", new File("paint.png"));
+    public void onSave() {
+        try {
+            Image snapshot = canvas.snapshot(null, null);
+            ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null), "png", new File("paint.png"));
 
-        // Show success message
-        Alert successAlert = new Alert(AlertType.INFORMATION);
-        successAlert.setTitle("Success");
-        successAlert.setHeaderText(null);
-        successAlert.setContentText("Image saved successfully!");
-        successAlert.showAndWait();
+            // Show success message
+            Alert successAlert = new Alert(AlertType.INFORMATION);
+            successAlert.setTitle("Success");
+            successAlert.setHeaderText(null);
+            successAlert.setContentText("Image saved successfully!");
+            successAlert.showAndWait();
 
-    } catch (Exception e) {
-        System.out.println("Failed to save image : " + e);
+        } catch (Exception e) {
+            System.out.println("Failed to save image : " + e);
 
-        // Show error message
-        Alert errorAlert = new Alert(AlertType.ERROR);
-        errorAlert.setTitle("Error");
-        errorAlert.setHeaderText(null);
-        errorAlert.setContentText("Failed to save image: " + e.getMessage());
-        errorAlert.showAndWait();
+            // Show error message
+            Alert errorAlert = new Alert(AlertType.ERROR);
+            errorAlert.setTitle("Error");
+            errorAlert.setHeaderText(null);
+            errorAlert.setContentText("Failed to save image: " + e.getMessage());
+            errorAlert.showAndWait();
+        }
     }
-}
-
 
     @FXML
     public void onExit() {
         Platform.exit();
+    }
+
+    @FXML
+    public void onZoomIn() {
+        canvas.setOnMouseDragged(null);
+        double zoomFactor = 1.1; // Adjust this value to change the zoom speed
+        zoomLevel.set(zoomLevel.get() * zoomFactor);
+    }
+
+    @FXML
+    public void onZoomOut() {
+        canvas.setOnMouseDragged(null);
+        double zoomFactor = 1.1; // Adjust this value to change the zoom speed
+        zoomLevel.set(zoomLevel.get() / zoomFactor);
+    }
+
+    @FXML
+    public void onScroll(ScrollEvent event) {
+        double zoomFactor = 1.05;
+        double deltaY = event.getDeltaY();
+
+        if (deltaY < 0) {
+            zoomFactor = 1 / zoomFactor;
+        }
+
+        canvasGroup.setScaleX(canvasGroup.getScaleX() * zoomFactor);
+        canvasGroup.setScaleY(canvasGroup.getScaleY() * zoomFactor);
+
+        event.consume();
     }
 
 }
