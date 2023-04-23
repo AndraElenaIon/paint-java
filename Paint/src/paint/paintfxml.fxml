@@ -99,7 +99,7 @@
             </HBox>
             </children>
         </VBox>
-      <StackPane layoutX="14.0" layoutY="85.0" prefHeight="621.0" prefWidth="1222.0" style="-fx-border-color: black; -fx-border-width: 1;">
+      <StackPane fx:id="stackPane" layoutX="14.0" layoutY="85.0" prefHeight="621.0" prefWidth="1222.0" style="-fx-border-color: black; -fx-border-width: 1;">
          <children>
               <Canvas fx:id="canvas" height="600.0" width="1283.0" />
          </children>

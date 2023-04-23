@@ -35,6 +35,8 @@ import javafx.scene.effect.InnerShadow;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
+import javafx.beans.binding.Bindings;
+import javafx.scene.layout.StackPane;
 
 /**
  *
@@ -58,6 +60,8 @@ public class paintfxmlController implements Initializable {
 
     @FXML
     private ChoiceBox<String> brushTypeChoiceBox;
+    @FXML
+    private StackPane stackPane;
 
     GraphicsContext brushTool;
 
@@ -71,6 +75,10 @@ public class paintfxmlController implements Initializable {
         Image resizedIcon = PaintUtils.resizeImage(eraserIcon, 20, 20);
 
         ImageView eraserImageView = new ImageView(resizedIcon);
+        
+        stackPane.prefWidthProperty().bind(canvas.widthProperty());
+        stackPane.prefHeightProperty().bind(canvas.heightProperty());
+
         eraser.setGraphic(eraserImageView);
 
         brushTypeChoiceBox.getItems().addAll("Circle", "Square", "Line", "Calligraphy", "Crayon", "Airbrush", "Natural Pencil");
