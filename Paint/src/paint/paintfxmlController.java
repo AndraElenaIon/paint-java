@@ -45,18 +45,12 @@ public class paintfxmlController implements Initializable {
 
     @FXML
     private ColorPicker colorpicker;
-
     @FXML
     private TextField bsize;
-
-    boolean toolSelected = false;
-
     @FXML
     private Canvas canvas;
-
     @FXML
     private CheckBox eraser;
-
     @FXML
     private ChoiceBox<String> brushTypeChoiceBox;
     @FXML
@@ -67,10 +61,10 @@ public class paintfxmlController implements Initializable {
     private Pane scrollContent;
 
     GraphicsContext brushTool;
-
     private String currentBrushType = "Circle";
     private boolean isDrawing = false;
     private double startX, startY;
+    boolean toolSelected = false;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -80,7 +74,7 @@ public class paintfxmlController implements Initializable {
         scrollContent.prefWidthProperty().bind(canvas.widthProperty());
         scrollContent.prefHeightProperty().bind(canvas.heightProperty());
 
-        Image eraserIcon = new Image(getClass().getResourceAsStream("eraser.png"));
+        Image eraserIcon = new Image(getClass().getResourceAsStream("/resources/eraser.png"));
         Image resizedIcon = PaintUtils.resizeImage(eraserIcon, 20, 20);
 
         ImageView eraserImageView = new ImageView(resizedIcon);
@@ -196,48 +190,60 @@ public class paintfxmlController implements Initializable {
 
     }
 
-    @FXML
-    public void newCanvas(ActionEvent e) {
-        TextField getCanvasWidth = new TextField();
-        getCanvasWidth.setPromptText("Width");
-        getCanvasWidth.setPrefWidth(150);
-        getCanvasWidth.setAlignment(Pos.CENTER);
+   public void newCanvas(ActionEvent e) {
+    TextField getCanvasWidth = new TextField();
+    getCanvasWidth.setPromptText("Width");
+    getCanvasWidth.setStyle("-fx-pref-width: 200px; -fx-max-width: 200px; -fx-pref-height: 40px;");
+    getCanvasWidth.setAlignment(Pos.CENTER);
 
-        TextField getCanvasHeight = new TextField();
-        getCanvasHeight.setPromptText("Height");
-        getCanvasHeight.setPrefWidth(150);
-        getCanvasHeight.setAlignment(Pos.CENTER);
+    TextField getCanvasHeight = new TextField();
+    getCanvasHeight.setPromptText("Height");
+    getCanvasHeight.setStyle("-fx-pref-width: 200px; -fx-max-width: 200px; -fx-pref-height: 40px;");
+    getCanvasHeight.setAlignment(Pos.CENTER);
 
-        Button createButton = new Button();
-        createButton.setText("Create Canvas");
+    Button createButton = new Button();
+    createButton.setText("Create Canvas");
+    createButton.setStyle("-fx-pref-width: 250px; -fx-max-width: 250px; -fx-pref-height: 50px;");
 
-        VBox vBox = new VBox();
-        vBox.setSpacing(5);
-        vBox.setAlignment(Pos.CENTER);
-        vBox.getChildren().addAll(getCanvasWidth, getCanvasHeight, createButton);
+    VBox vBox = new VBox();
+    vBox.setSpacing(5);
+    vBox.setAlignment(Pos.CENTER);
+    vBox.getChildren().addAll(getCanvasWidth, getCanvasHeight, createButton);
 
-        Stage createStage = new Stage();
-        AnchorPane root = new AnchorPane();
-        root.setPrefWidth(200);
-        root.setPrefHeight(200);
-        root.getChildren().add(vBox);
+    Stage createStage = new Stage();
+    AnchorPane root = new AnchorPane();
+    root.getChildren().add(vBox);
 
-        Scene CanvasScene = new Scene(root);
-        createStage.setTitle("Create Canvas");
-        createStage.setScene(CanvasScene);
-        createStage.show();
+    // Calculate the preferred width and height based on the content
+    double prefWidth = createButton.getWidth() + 50;
+    double prefHeight = getCanvasWidth.getHeight() + getCanvasHeight.getHeight() + createButton.getHeight() + 60;
 
-        createButton.setOnAction((ActionEvent event) -> {
-            double canvasWidthReceived = Double.parseDouble(getCanvasWidth.getText());
-            double canvasHeightReceived = Double.parseDouble(getCanvasHeight.getText());
+    root.setPrefWidth(prefWidth);
+    root.setPrefHeight(prefHeight);
 
-            clearCanvas(canvas);
-            canvas.setWidth(canvasWidthReceived);
-            canvas.setHeight(canvasHeightReceived);
-            resetGraphicsContext(brushTool); // Reset GraphicsContext properties
-            createStage.close();
-        });
-    }
+    // Set the top, bottom, left, and right anchors of the VBox to center it in the AnchorPane
+    AnchorPane.setTopAnchor(vBox, (root.getPrefHeight() - vBox.getBoundsInParent().getHeight()) / 2);
+    AnchorPane.setBottomAnchor(vBox, (root.getPrefHeight() - vBox.getBoundsInParent().getHeight()) / 2);
+    AnchorPane.setLeftAnchor(vBox, (root.getPrefWidth() - vBox.getBoundsInParent().getWidth()) / 2);
+    AnchorPane.setRightAnchor(vBox, (root.getPrefWidth() - vBox.getBoundsInParent().getWidth()) / 2);
+
+    Scene canvasScene = new Scene(root);
+    createStage.setTitle("Create Canvas");
+    createStage.setScene(canvasScene);
+    createStage.show();
+
+    createButton.setOnAction((ActionEvent event) -> {
+        double canvasWidthReceived = Double.parseDouble(getCanvasWidth.getText());
+        double canvasHeightReceived = Double.parseDouble(getCanvasHeight.getText());
+
+        clearCanvas(canvas);
+        canvas.setWidth(canvasWidthReceived);
+        canvas.setHeight(canvasHeightReceived);
+        resetGraphicsContext(brushTool); // Reset GraphicsContext properties
+        createStage.close();
+    });
+}
+
 
     private void clearCanvas(Canvas canvas) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
