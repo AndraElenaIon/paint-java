@@ -33,6 +33,7 @@
                                             <items>
                                                 <MenuItem mnemonicParsing="false" onAction="#onSave" text="Save" />
                                                 <MenuItem mnemonicParsing="false" onAction="#onExit" text="Exit" />
+                                                <MenuItem mnemonicParsing="false" onAction="#newCanvas" text="New" />
                                             </items>
                                         </Menu>
                                     </menus>
@@ -50,14 +51,9 @@
                         </HBox>
                         <HBox prefHeight="31.0" prefWidth="1258.0">
                             <children>
-                                <Button mnemonicParsing="false" onAction="#newCanvas" text="New Canvas">
-                                    <HBox.margin>
-                                        <Insets left="20.0" top="5.0" />
-                                    </HBox.margin>
-                                </Button>
                                 <Button fx:id="brush" mnemonicParsing="false" onAction="#toolselected" text="Activate Brush">
                                     <HBox.margin>
-                                        <Insets left="10.0" top="5.0" />
+                                        <Insets left="20.0" top="5.0" />
                                     </HBox.margin>
                                 </Button>
                                 <ColorPicker fx:id="colorpicker">
@@ -117,18 +113,18 @@
                 </VBox>
                 <StackPane fx:id="stackPane" layoutX="14.0" layoutY="80.0" prefHeight="626.0" prefWidth="1260.0" style="-fx-border-color: black; -fx-border-width: 1;">
                     <children>
-                  <ScrollPane fx:id="scrollPaneCanv" fitToHeight="true" fitToWidth="true" pannable="true">
-                     <StackPane.margin>
-                        <Insets />
-                     </StackPane.margin>
-                     <content>
-                        <Group fx:id="canvasGroup">
-                           <children>
-                                    <Canvas fx:id="canvas" height="593.0" width="1258.0" />
-                           </children>
-                        </Group>
-                     </content>
-                  </ScrollPane>
+                        <ScrollPane fx:id="scrollPaneCanv" fitToHeight="true" fitToWidth="true" pannable="true">
+                            <StackPane.margin>
+                                <Insets />
+                            </StackPane.margin>
+                            <content>
+                                <Group fx:id="canvasGroup">
+                                    <children>
+                                        <Canvas fx:id="canvas" height="593.0" width="1258.0" />
+                                    </children>
+                                </Group>
+                            </content>
+                        </ScrollPane>
                     </children>
                 </StackPane>
             </children>
