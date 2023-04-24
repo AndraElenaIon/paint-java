@@ -27,7 +27,7 @@
                     <children>
                         <HBox prefHeight="39.0" prefWidth="1280.0" spacing="10.0">
                             <children>
-                                <MenuBar prefHeight="25.0" prefWidth="52.0">
+                                <MenuBar prefHeight="37.0" prefWidth="68.0" style="-fx-border-color: grey; -fx-border-width: 1; -fx-padding: 5;">
                                     <menus>
                                         <Menu mnemonicParsing="false" text="File">
                                             <items>
@@ -47,6 +47,23 @@
                                         <Insets left="20.0" />
                                     </opaqueInsets>
                                 </MenuBar>
+                        <HBox prefHeight="28.0" prefWidth="133.0" style="-fx-border-color: grey; -fx-border-width: 1; -fx-padding: 5;">
+                           <HBox.margin>
+                              <Insets bottom="5.0" left="10.0" top="5.0" />
+                           </HBox.margin>
+                           <children>
+                              <Button fx:id="undoButton" mnemonicParsing="false" text="Undo">
+                                 <HBox.margin>
+                                    <Insets bottom="1.0" left="10.0" top="1.0" />
+                                 </HBox.margin>
+                              </Button>
+                              <Button fx:id="redoButton" mnemonicParsing="false" text="Redo">
+                                 <HBox.margin>
+                                    <Insets bottom="1.0" left="10.0" top="1.0" />
+                                 </HBox.margin>
+                              </Button>
+                           </children>
+                        </HBox>
                             </children>
                         </HBox>
                         <HBox prefHeight="31.0" prefWidth="1258.0">
@@ -130,16 +147,16 @@
                         </HBox>
                     </children>
                 </VBox>
-                <StackPane fx:id="stackPane" layoutX="14.0" layoutY="80.0" prefHeight="626.0" prefWidth="1260.0" style="-fx-border-color: black; -fx-border-width: 1;">
+                <StackPane fx:id="stackPane" layoutX="5.0" layoutY="106.0" prefHeight="600.0" prefWidth="1261.0" style="-fx-border-color: black; -fx-border-width: 1;">
                     <children>
-                        <ScrollPane fx:id="scrollPaneCanv" fitToHeight="true" fitToWidth="true" pannable="true">
+                        <ScrollPane fx:id="scrollPaneCanv" fitToHeight="true" fitToWidth="true" pannable="true" prefHeight="597.0" prefWidth="1259.0">
                             <StackPane.margin>
                                 <Insets />
                             </StackPane.margin>
                             <content>
                                 <Group fx:id="canvasGroup">
                                     <children>
-                                        <Canvas fx:id="canvas" height="593.0" width="1258.0" />
+                                        <Canvas fx:id="canvas" height="589.0" layoutX="21.0" layoutY="-37.0" width="1255.0" />
                                     </children>
                                 </Group>
                             </content>
