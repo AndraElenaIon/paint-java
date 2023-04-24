@@ -6,6 +6,7 @@ package paint;
 
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
@@ -84,6 +85,8 @@ public class paintfxmlController implements Initializable {
     private boolean isDrawing = false;
     private double startX, startY;
     private final DoubleProperty zoomLevel = new SimpleDoubleProperty(1.0);
+    private ArrayList<Image> canvasSnapshots = new ArrayList<>();
+    private ArrayList<Image> redoSnapshots = new ArrayList<>();
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -207,6 +210,9 @@ public class paintfxmlController implements Initializable {
             startX = updatedValues[1];
             startY = updatedValues[2];
         }
+        canvasSnapshots.add(canvas.snapshot(null, null));
+        redoSnapshots.clear();
+
     }
 
     @FXML
@@ -266,6 +272,30 @@ public class paintfxmlController implements Initializable {
         canvasGroup.setScaleY(canvasGroup.getScaleY() * zoomFactor);
 
         event.consume();
+    }
+
+    @FXML
+    public void onUndo() {
+        if (canvasSnapshots.size() > 1) {
+            // Save the current snapshot in redoSnapshots
+            redoSnapshots.add(canvasSnapshots.remove(canvasSnapshots.size() - 1));
+
+            // Get the previous snapshot and display it on the canvas
+            Image previousSnapshot = canvasSnapshots.get(canvasSnapshots.size() - 1);
+            brushTool.drawImage(previousSnapshot, 0, 0);
+        }
+    }
+
+    @FXML
+    public void onRedo() {
+        if (redoSnapshots.size() > 0) {
+            // Get the next snapshot and display it on the canvas
+            Image nextSnapshot = redoSnapshots.remove(redoSnapshots.size() - 1);
+            brushTool.drawImage(nextSnapshot, 0, 0);
+
+            // Add the next snapshot to canvasSnapshots
+            canvasSnapshots.add(nextSnapshot);
+        }
     }
 
 }
