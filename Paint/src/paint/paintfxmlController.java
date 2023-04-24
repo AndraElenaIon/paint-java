@@ -38,6 +38,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.StackPane;
+import javafx.stage.FileChooser;
 
 /**
  *
@@ -295,6 +296,40 @@ public class paintfxmlController implements Initializable {
 
             // Add the next snapshot to canvasSnapshots
             canvasSnapshots.add(nextSnapshot);
+        }
+    }
+
+    @FXML
+    public void onLoad() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open Image File");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("PNG files", "*.png")
+        );
+
+        File selectedFile = fileChooser.showOpenDialog(null);
+        if (selectedFile != null) {
+            try {
+                Image loadedImage = new Image(selectedFile.toURI().toString());
+                brushTool.drawImage(loadedImage, 0, 0);
+
+                // Update the canvas size to match the loaded image size
+                canvas.setWidth(loadedImage.getWidth());
+                canvas.setHeight(loadedImage.getHeight());
+                PaintUtils.resetGraphicsContext(brushTool);
+
+                // Clear the canvasSnapshots and redoSnapshots lists
+                canvasSnapshots.clear();
+                redoSnapshots.clear();
+                canvasSnapshots.add(canvas.snapshot(null, null));
+            } catch (Exception ex) {
+                System.out.println("Failed to load image: " + ex.getMessage());
+                Alert errorAlert = new Alert(AlertType.ERROR);
+                errorAlert.setTitle("Error");
+                errorAlert.setHeaderText(null);
+                errorAlert.setContentText("Failed to load image: " + ex.getMessage());
+                errorAlert.showAndWait();
+            }
         }
     }
 
