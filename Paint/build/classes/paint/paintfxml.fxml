@@ -56,6 +56,14 @@
                                         <Insets left="20.0" top="5.0" />
                                     </HBox.margin>
                                 </Button>
+                        <Label text="Color">
+                           <HBox.margin>
+                              <Insets left="10.0" top="5.0" />
+                           </HBox.margin>
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Label>
                                 <ColorPicker fx:id="colorpicker">
                                     <HBox.margin>
                                         <Insets left="10.0" top="5.0" />
@@ -69,15 +77,26 @@
                                         <Font name="System Bold" size="12.0" />
                                     </font>
                                 </Label>
-                                <TextField fx:id="bsize" promptText="18">
+                                <TextField fx:id="bsize" promptText="ex : 18">
                                     <HBox.margin>
                                         <Insets left="10.0" top="5.0" />
                                     </HBox.margin>
                                 </TextField>
+                        <Label text="Eraser">
+                           <HBox.margin>
+                              <Insets left="10.0" top="5.0" />
+                           </HBox.margin>
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Label>
                                 <CheckBox fx:id="eraser" lineSpacing="5.0" prefHeight="36.0" prefWidth="54.0">
                                     <HBox.margin>
-                                        <Insets left="20.0" top="1.0" />
+                                        <Insets left="10.0" top="1.0" />
                                     </HBox.margin>
+                           <padding>
+                              <Insets bottom="8.0" />
+                           </padding>
                                 </CheckBox>
                                 <Label text="Brush Type">
                                     <HBox.margin>
@@ -89,7 +108,7 @@
                                 </Label>
                                 <ChoiceBox fx:id="brushTypeChoiceBox" prefWidth="100">
                                     <HBox.margin>
-                                        <Insets left="20.0" top="5.0" />
+                                        <Insets left="10.0" top="5.0" />
                                     </HBox.margin>
                                 </ChoiceBox>
                                 <Label text="Zoom">
