@@ -38,6 +38,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.StackPane;
+import javafx.scene.transform.Scale;
 import javafx.stage.FileChooser;
 
 /**
@@ -129,7 +130,7 @@ public class paintfxmlController implements Initializable {
             } else {
                 isDrawing = false;
             }
-            undoManager.saveUndoState();
+            undoManager.saveUndoState(new Scale(zoomLevel.get(), zoomLevel.get()));
         });
 
         canvas.setOnMouseDragged(this::brushHandler);
@@ -285,7 +286,8 @@ public class paintfxmlController implements Initializable {
     public void onRedo() {
         undoManager.redo();
     }
-@FXML
+
+    @FXML
     public void onLoad() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Image File");
@@ -308,7 +310,7 @@ public class paintfxmlController implements Initializable {
                 undoManager.clear();
 
                 // Save the loaded image state
-                undoManager.saveUndoState();
+                undoManager.saveUndoState(new Scale(zoomLevel.get(), zoomLevel.get()));
             } catch (Exception ex) {
                 System.out.println("Failed to load image: " + ex.getMessage());
                 Alert errorAlert = new Alert(AlertType.ERROR);

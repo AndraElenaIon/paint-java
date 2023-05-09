@@ -2,13 +2,14 @@ package paint;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.transform.Scale;
 import java.util.LinkedList;
 
 public class UndoManager {
     private final Canvas canvas;
     private final GraphicsContext gc;
-    private final LinkedList<Image> undoStack;
-    private final LinkedList<Image> redoStack;
+    private final LinkedList<CanvasState> undoStack;
+    private final LinkedList<CanvasState> redoStack;
 
     public UndoManager(Canvas canvas) {
         this.canvas = canvas;
@@ -17,17 +18,21 @@ public class UndoManager {
         this.redoStack = new LinkedList<>();
     }
 
-    public void saveUndoState() {
+    public void saveUndoState(Scale zoom) {
         Image snapshot = canvas.snapshot(null, null);
-        undoStack.push(snapshot);
+        undoStack.push(new CanvasState(snapshot, zoom));
         redoStack.clear();
     }
 
     public void undo() {
         if (!undoStack.isEmpty()) {
-            redoStack.push(undoStack.pop());
+            CanvasState currentState = undoStack.pop();
+            redoStack.push(currentState);
+
             if (!undoStack.isEmpty()) {
-                gc.drawImage(undoStack.peek(), 0, 0);
+                CanvasState previousState = undoStack.peek();
+                gc.drawImage(previousState.getImage(), 0, 0);
+                canvas.getTransforms().setAll(previousState.getZoom());
             } else {
                 gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
             }
@@ -36,14 +41,33 @@ public class UndoManager {
 
     public void redo() {
         if (!redoStack.isEmpty()) {
-            Image redoImage = redoStack.pop();
-            gc.drawImage(redoImage, 0, 0);
-            undoStack.push(redoImage);
+            CanvasState redoState = redoStack.pop();
+            gc.drawImage(redoState.getImage(), 0, 0);
+            canvas.getTransforms().setAll(redoState.getZoom());
+            undoStack.push(redoState);
         }
     }
 
     public void clear() {
         undoStack.clear();
         redoStack.clear();
+    }
+
+    private class CanvasState {
+        private final Image image;
+        private final Scale zoom;
+
+        public CanvasState(Image image, Scale zoom) {
+            this.image = image;
+            this.zoom = zoom;
+        }
+
+        public Image getImage() {
+            return image;
+        }
+
+        public Scale getZoom() {
+            return zoom;
+        }
     }
 }

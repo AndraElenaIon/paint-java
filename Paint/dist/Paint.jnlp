@@ -8,7 +8,7 @@
   </information>
   <resources>
     <j2se version="1.6+" java-vm-args="-Xmx1024m "  href="http://java.sun.com/products/autodl/j2se"/>
-    <jar href="Paint.jar" size="88012" download="eager" />
+    <jar href="Paint.jar" size="88959" download="eager" />
   </resources>
   <jfx:javafx-desc  width="800" height="600" main-class="paint.Paint"  name="Paint" />
   <update check="always"/>
