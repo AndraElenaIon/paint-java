@@ -65,12 +65,6 @@ public class paintfxmlController implements Initializable {
     private StackPane stackPane;
 
     @FXML
-    private ScrollPane scrollPane;
-
-    @FXML
-    private Pane scrollContent;
-
-    @FXML
     private Button zoomInButton;
 
     @FXML
@@ -82,23 +76,30 @@ public class paintfxmlController implements Initializable {
     @FXML
     private Group canvasGroup;
 
+    @FXML
+    private AnchorPane anchorPane;
+
     private String currentBrushType = "Circle";
     private boolean isDrawing = false;
     private double startX, startY;
     private final DoubleProperty zoomLevel = new SimpleDoubleProperty(1.0);
-    private ArrayList<Image> canvasSnapshots = new ArrayList<>();
-    private ArrayList<Image> redoSnapshots = new ArrayList<>();
+    private UndoManager undoManager;
 
+//    private ArrayList<Image> canvasSnapshots = new ArrayList<>();
+//    private ArrayList<Image> redoSnapshots = new ArrayList<>();
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         startX = -1;
         startY = -1;
 
-        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-
-        scrollContent.prefWidthProperty().bind(canvas.widthProperty());
-        scrollContent.prefHeightProperty().bind(canvas.heightProperty());
+//        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+//        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+//
+//        scrollContent.prefWidthProperty().bind(canvas.widthProperty());
+//        scrollContent.prefHeightProperty().bind(canvas.heightProperty());
+        anchorPane.prefWidthProperty().bind(canvas.widthProperty());
+        anchorPane.prefHeightProperty().bind(canvas.heightProperty());
+        undoManager = new UndoManager(canvas);
 
         Image eraserIcon = new Image(getClass().getResourceAsStream("/resources/eraser.png"));
         Image resizedIcon = PaintUtils.resizeImage(eraserIcon, 20, 20);
@@ -128,10 +129,11 @@ public class paintfxmlController implements Initializable {
             } else {
                 isDrawing = false;
             }
+            undoManager.saveUndoState();
         });
 
         canvas.setOnMouseDragged(this::brushHandler);
-
+        canvas.addEventFilter(ScrollEvent.ANY, ScrollEvent::consume);
     }
 
     @FXML
@@ -199,7 +201,6 @@ public class paintfxmlController implements Initializable {
         double x = e.getX() - size / 2;
         double y = e.getY() - size / 2;
 
-        // Check if eraser tool is selected
         if (eraser.isSelected()) {
             brushTool.clearRect(x, y, size, size);
         } else if (!bsize.getText().isEmpty()) {
@@ -211,9 +212,6 @@ public class paintfxmlController implements Initializable {
             startX = updatedValues[1];
             startY = updatedValues[2];
         }
-        canvasSnapshots.add(canvas.snapshot(null, null));
-        redoSnapshots.clear();
-
     }
 
     @FXML
@@ -262,6 +260,9 @@ public class paintfxmlController implements Initializable {
 
     @FXML
     public void onScroll(ScrollEvent event) {
+        if (!event.isControlDown()) { // Make sure control key is pressed
+            return;
+        }
         double zoomFactor = 1.05;
         double deltaY = event.getDeltaY();
 
@@ -277,29 +278,14 @@ public class paintfxmlController implements Initializable {
 
     @FXML
     public void onUndo() {
-        if (canvasSnapshots.size() > 1) {
-            // Save the current snapshot in redoSnapshots
-            redoSnapshots.add(canvasSnapshots.remove(canvasSnapshots.size() - 1));
-
-            // Get the previous snapshot and display it on the canvas
-            Image previousSnapshot = canvasSnapshots.get(canvasSnapshots.size() - 1);
-            brushTool.drawImage(previousSnapshot, 0, 0);
-        }
+        undoManager.undo();
     }
 
     @FXML
     public void onRedo() {
-        if (redoSnapshots.size() > 0) {
-            // Get the next snapshot and display it on the canvas
-            Image nextSnapshot = redoSnapshots.remove(redoSnapshots.size() - 1);
-            brushTool.drawImage(nextSnapshot, 0, 0);
-
-            // Add the next snapshot to canvasSnapshots
-            canvasSnapshots.add(nextSnapshot);
-        }
+        undoManager.redo();
     }
-
-    @FXML
+@FXML
     public void onLoad() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Image File");
@@ -318,10 +304,11 @@ public class paintfxmlController implements Initializable {
                 canvas.setHeight(loadedImage.getHeight());
                 PaintUtils.resetGraphicsContext(brushTool);
 
-                // Clear the canvasSnapshots and redoSnapshots lists
-                canvasSnapshots.clear();
-                redoSnapshots.clear();
-                canvasSnapshots.add(canvas.snapshot(null, null));
+                // Clear the undoManager
+                undoManager.clear();
+
+                // Save the loaded image state
+                undoManager.saveUndoState();
             } catch (Exception ex) {
                 System.out.println("Failed to load image: " + ex.getMessage());
                 Alert errorAlert = new Alert(AlertType.ERROR);

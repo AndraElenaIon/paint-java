@@ -13,166 +13,334 @@
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<ScrollPane fx:id="scrollPane" fitToHeight="true" fitToWidth="true" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="paint.paintfxmlController">
-    <content>
-        <Pane fx:id="scrollContent" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0">
-            <children>
-                <VBox prefHeight="71.0" prefWidth="1280.0">
-                    <children>
-                        <HBox prefHeight="39.0" prefWidth="1280.0" spacing="10.0">
-                            <children>
-                                <MenuBar prefHeight="37.0" prefWidth="68.0" style="-fx-border-color: grey; -fx-border-width: 1; -fx-padding: 5;">
-                                    <menus>
-                                        <Menu mnemonicParsing="false" text="File">
-                                            <items>
-                                                <MenuItem mnemonicParsing="false" onAction="#onSave" text="Save" />
-                                                <MenuItem mnemonicParsing="false" onAction="#onExit" text="Exit" />
-                                                <MenuItem mnemonicParsing="false" onAction="#newCanvas" text="New" />
-                                    <MenuItem mnemonicParsing="false" onAction="#onLoad" text="Load" />
-                                            </items>
-                                        </Menu>
-                                    </menus>
-                                    <HBox.margin>
-                                        <Insets left="20.0" top="5.0" />
-                                    </HBox.margin>
-                                    <padding>
-                                        <Insets left="5.0" />
-                                    </padding>
-                                    <opaqueInsets>
-                                        <Insets left="20.0" />
-                                    </opaqueInsets>
-                                </MenuBar>
-                        <HBox prefHeight="28.0" prefWidth="133.0" style="-fx-border-color: grey; -fx-border-width: 1; -fx-padding: 5;">
-                           <HBox.margin>
-                              <Insets bottom="5.0" left="10.0" top="5.0" />
-                           </HBox.margin>
-                           <children>
-                              <Button fx:id="undoButton" mnemonicParsing="false" onAction="#onUndo" text="Undo">
+<!--
+<AnchorPane style="-fx-background-color: #C2DEF9;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="paint.paintfxmlController">
+   <children>
+      <ScrollPane fx:id="scrollPane" fitToHeight="true" fitToWidth="true" style="-fx-background-color: #C2DEF9;">
+          <content>
+              <Pane fx:id="scrollContent" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1261.0" style="-fx-background-color: #C2DEF9;">
+                  <children>
+                      <VBox prefHeight="71.0" prefWidth="1280.0">
+                          <children>
+                              <HBox prefHeight="39.0" prefWidth="1280.0" spacing="10.0">
+                                  <children>
+                                      <MenuBar prefHeight="37.0" prefWidth="68.0" style="-fx-border-color: grey; -fx-border-width: 1; -fx-padding: 5;">
+                                          <menus>
+                                              <Menu mnemonicParsing="false" text="File">
+                                                  <items>
+                                                      <MenuItem mnemonicParsing="false" onAction="#onSave" text="Save" />
+                                                      <MenuItem mnemonicParsing="false" onAction="#onExit" text="Exit" />
+                                                      <MenuItem mnemonicParsing="false" onAction="#newCanvas" text="New" />
+                                          <MenuItem mnemonicParsing="false" onAction="#onLoad" text="Load" />
+                                                  </items>
+                                              </Menu>
+                                          </menus>
+                                          <HBox.margin>
+                                              <Insets left="20.0" top="5.0" />
+                                          </HBox.margin>
+                                          <padding>
+                                              <Insets left="5.0" />
+                                          </padding>
+                                          <opaqueInsets>
+                                              <Insets left="20.0" />
+                                          </opaqueInsets>
+                                      </MenuBar>
+                              <HBox prefHeight="28.0" prefWidth="133.0" style="-fx-border-color: grey; -fx-border-width: 1; -fx-padding: 5;">
                                  <HBox.margin>
-                                    <Insets bottom="1.0" left="10.0" top="1.0" />
+                                    <Insets bottom="5.0" left="10.0" top="5.0" />
                                  </HBox.margin>
-                              </Button>
-                              <Button fx:id="redoButton" mnemonicParsing="false" onAction="#onRedo" text="Redo">
+                                 <children>
+                                    <Button fx:id="undoButton" mnemonicParsing="false" onAction="#onUndo" text="Undo">
+                                       <HBox.margin>
+                                          <Insets bottom="1.0" left="10.0" top="1.0" />
+                                       </HBox.margin>
+                                    </Button>
+                                    <Button fx:id="redoButton" mnemonicParsing="false" onAction="#onRedo" text="Redo">
+                                       <HBox.margin>
+                                          <Insets bottom="1.0" left="10.0" top="1.0" />
+                                       </HBox.margin>
+                                    </Button>
+                                 </children>
+                              </HBox>
+                                  </children>
+                              </HBox>
+                              <HBox prefHeight="31.0" prefWidth="1258.0">
+                                  <children>
+                                      <Button fx:id="brush" mnemonicParsing="false" onAction="#toolselected" text="Activate Brush">
+                                          <HBox.margin>
+                                              <Insets left="20.0" top="5.0" />
+                                          </HBox.margin>
+                                      </Button>
+                              <Label text="Color">
                                  <HBox.margin>
-                                    <Insets bottom="1.0" left="10.0" top="1.0" />
+                                    <Insets left="10.0" top="5.0" />
                                  </HBox.margin>
-                              </Button>
-                           </children>
-                        </HBox>
-                            </children>
-                        </HBox>
-                        <HBox prefHeight="31.0" prefWidth="1258.0">
-                            <children>
-                                <Button fx:id="brush" mnemonicParsing="false" onAction="#toolselected" text="Activate Brush">
-                                    <HBox.margin>
-                                        <Insets left="20.0" top="5.0" />
-                                    </HBox.margin>
-                                </Button>
-                        <Label text="Color">
-                           <HBox.margin>
-                              <Insets left="10.0" top="5.0" />
-                           </HBox.margin>
-                           <font>
-                              <Font name="System Bold" size="12.0" />
-                           </font>
-                        </Label>
-                                <ColorPicker fx:id="colorpicker">
-                                    <HBox.margin>
-                                        <Insets left="10.0" top="5.0" />
-                                    </HBox.margin>
-                                </ColorPicker>
-                                <Label alignment="CENTER" contentDisplay="CENTER" text="Thickness" textAlignment="JUSTIFY">
-                                    <HBox.margin>
-                                        <Insets left="10.0" top="5.0" />
-                                    </HBox.margin>
-                                    <font>
-                                        <Font name="System Bold" size="12.0" />
-                                    </font>
-                                </Label>
-                                <TextField fx:id="bsize" promptText="ex : 18">
-                                    <HBox.margin>
-                                        <Insets left="10.0" top="5.0" />
-                                    </HBox.margin>
-                                </TextField>
-                        <Label text="Eraser">
-                           <HBox.margin>
-                              <Insets left="10.0" top="5.0" />
-                           </HBox.margin>
-                           <font>
-                              <Font name="System Bold" size="12.0" />
-                           </font>
-                        </Label>
-                                <CheckBox fx:id="eraser" lineSpacing="5.0" prefHeight="36.0" prefWidth="54.0">
-                                    <HBox.margin>
-                                        <Insets left="10.0" top="1.0" />
-                                    </HBox.margin>
-                           <padding>
-                              <Insets bottom="8.0" />
-                           </padding>
-                                </CheckBox>
-                                <Label text="Brush Type">
-                                    <HBox.margin>
-                                        <Insets left="10.0" top="5.0" />
-                                    </HBox.margin>
-                                    <font>
-                                        <Font name="System Bold" size="12.0" />
-                                    </font>
-                                </Label>
-                                <ChoiceBox fx:id="brushTypeChoiceBox" prefWidth="100">
-                                    <HBox.margin>
-                                        <Insets left="10.0" top="5.0" />
-                                    </HBox.margin>
-                                </ChoiceBox>
-                                <Label text="Zoom">
-                                    <HBox.margin>
-                                        <Insets left="20.0" right="10.0" top="5.0" />
-                                    </HBox.margin>
-                                    <font>
-                                        <Font name="System Bold" size="12.0" />
-                                    </font>
-                                </Label>
-                                <HBox spacing="10" style="-fx-border-color: grey; -fx-border-width: 1; -fx-padding: 5;">
-                                    <Button fx:id="zoomInButton" mnemonicParsing="false" text="+" />
-                                    <Button fx:id="zoomOutButton" mnemonicParsing="false" text="-" />
-                                </HBox>
-                        <Label>
-                           <HBox.margin>
-                              <Insets left="20.0" top="5.0" />
-                           </HBox.margin>
-                           <font>
-                              <Font name="System Bold" size="12.0" />
-                           </font>
-                        </Label>
-                            </children>
-                            <opaqueInsets>
-                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                            </opaqueInsets>
-                        </HBox>
-                    </children>
-                </VBox>
-                <StackPane fx:id="stackPane" layoutX="5.0" layoutY="106.0" prefHeight="600.0" prefWidth="1261.0" style="-fx-border-color: black; -fx-border-width: 1;">
-                    <children>
-                        <ScrollPane fx:id="scrollPaneCanv" fitToHeight="true" fitToWidth="true" pannable="true" prefHeight="597.0" prefWidth="1259.0">
-                            <StackPane.margin>
-                                <Insets />
-                            </StackPane.margin>
-                            <content>
-                                <Group fx:id="canvasGroup">
-                                    <children>
-                                        <Canvas fx:id="canvas" height="589.0" layoutX="21.0" layoutY="-37.0" width="1255.0" />
-                                    </children>
-                                </Group>
-                            </content>
-                        </ScrollPane>
-                    </children>
-                </StackPane>
-            </children>
-        </Pane>
-    </content>
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Label>
+                                      <ColorPicker fx:id="colorpicker">
+                                          <HBox.margin>
+                                              <Insets left="10.0" top="5.0" />
+                                          </HBox.margin>
+                                      </ColorPicker>
+                                      <Label alignment="CENTER" contentDisplay="CENTER" text="Thickness" textAlignment="JUSTIFY">
+                                          <HBox.margin>
+                                              <Insets left="10.0" top="5.0" />
+                                          </HBox.margin>
+                                          <font>
+                                              <Font name="System Bold" size="12.0" />
+                                          </font>
+                                      </Label>
+                                      <TextField fx:id="bsize" promptText="ex : 18">
+                                          <HBox.margin>
+                                              <Insets left="10.0" top="5.0" />
+                                          </HBox.margin>
+                                      </TextField>
+                              <Label text="Eraser">
+                                 <HBox.margin>
+                                    <Insets left="10.0" top="5.0" />
+                                 </HBox.margin>
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Label>
+                                      <CheckBox fx:id="eraser" lineSpacing="5.0" prefHeight="36.0" prefWidth="54.0">
+                                          <HBox.margin>
+                                              <Insets left="10.0" top="1.0" />
+                                          </HBox.margin>
+                                 <padding>
+                                    <Insets bottom="8.0" />
+                                 </padding>
+                                      </CheckBox>
+                                      <Label text="Brush Type">
+                                          <HBox.margin>
+                                              <Insets left="10.0" top="5.0" />
+                                          </HBox.margin>
+                                          <font>
+                                              <Font name="System Bold" size="12.0" />
+                                          </font>
+                                      </Label>
+                                      <ChoiceBox fx:id="brushTypeChoiceBox" prefWidth="100">
+                                          <HBox.margin>
+                                              <Insets left="10.0" top="5.0" />
+                                          </HBox.margin>
+                                      </ChoiceBox>
+                                      <Label text="Zoom">
+                                          <HBox.margin>
+                                              <Insets left="20.0" right="10.0" top="5.0" />
+                                          </HBox.margin>
+                                          <font>
+                                              <Font name="System Bold" size="12.0" />
+                                          </font>
+                                      </Label>
+                                      <HBox spacing="10" style="-fx-border-color: grey; -fx-border-width: 1; -fx-padding: 5;">
+                                          <Button fx:id="zoomInButton" mnemonicParsing="false" text="+" />
+                                          <Button fx:id="zoomOutButton" mnemonicParsing="false" text="-" />
+                                      </HBox>
+                              <Label>
+                                 <HBox.margin>
+                                    <Insets left="20.0" top="5.0" />
+                                 </HBox.margin>
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Label>
+                                  </children>
+                                  <opaqueInsets>
+                                      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                  </opaqueInsets>
+                              </HBox>
+                          </children>
+                      </VBox>
+                      <StackPane fx:id="stackPane" layoutX="5.0" layoutY="106.0" prefHeight="600.0" prefWidth="1261.0" style="-fx-border-color: black; -fx-border-width: 1;">
+                          <children>
+                              <ScrollPane fx:id="scrollPaneCanv" fitToHeight="true" fitToWidth="true" pannable="true" prefHeight="597.0" prefWidth="1259.0">
+                                  <StackPane.margin>
+                                      <Insets />
+                                  </StackPane.margin>
+                                  <content>
+                                      <Group fx:id="canvasGroup">
+                                          <children>
+                                              <Canvas fx:id="canvas" height="594.0" layoutX="21.0" layoutY="-37.0" width="1248.0" />
+                                          </children>
+                                      </Group>
+                                  </content>
+                              </ScrollPane>
+                          </children>
+                      </StackPane>
+                  </children>
+              </Pane>
+          </content>
+      </ScrollPane>
+   </children>
+</AnchorPane>-->
+
+<ScrollPane fitToHeight="true" fitToWidth="true" style="-fx-background-color: #C2DEF9;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="paint.paintfxmlController">
+   <content>
+      <AnchorPane fx:id="anchorPane" style="-fx-background-color: #C2DEF9;">
+        <children>
+            <Pane fx:id="scrollContent" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1261.0" style="-fx-background-color: #C2DEF9;">
+                  <children>
+                      <VBox prefHeight="71.0" prefWidth="1280.0">
+                          <children>
+                              <HBox prefHeight="39.0" prefWidth="1280.0" spacing="10.0">
+                                  <children>
+                                      <MenuBar prefHeight="37.0" prefWidth="68.0" style="-fx-border-color: grey; -fx-border-width: 1; -fx-padding: 5;">
+                                          <menus>
+                                              <Menu mnemonicParsing="false" text="File">
+                                                  <items>
+                                                      <MenuItem mnemonicParsing="false" onAction="#onSave" text="Save" />
+                                                      <MenuItem mnemonicParsing="false" onAction="#onExit" text="Exit" />
+                                                      <MenuItem mnemonicParsing="false" onAction="#newCanvas" text="New" />
+                                          <MenuItem mnemonicParsing="false" onAction="#onLoad" text="Load" />
+                                                  </items>
+                                              </Menu>
+                                          </menus>
+                                          <HBox.margin>
+                                              <Insets left="20.0" top="5.0" />
+                                          </HBox.margin>
+                                          <padding>
+                                              <Insets left="5.0" />
+                                          </padding>
+                                          <opaqueInsets>
+                                              <Insets left="20.0" />
+                                          </opaqueInsets>
+                                      </MenuBar>
+                              <HBox prefHeight="28.0" prefWidth="133.0" style="-fx-border-color: grey; -fx-border-width: 1; -fx-padding: 5;">
+                                 <HBox.margin>
+                                    <Insets bottom="5.0" left="10.0" top="5.0" />
+                                 </HBox.margin>
+                                 <children>
+                                    <Button fx:id="undoButton" mnemonicParsing="false" onAction="#onUndo" text="Undo">
+                                       <HBox.margin>
+                                          <Insets bottom="1.0" left="10.0" top="1.0" />
+                                       </HBox.margin>
+                                    </Button>
+                                    <Button fx:id="redoButton" mnemonicParsing="false" onAction="#onRedo" text="Redo">
+                                       <HBox.margin>
+                                          <Insets bottom="1.0" left="10.0" top="1.0" />
+                                       </HBox.margin>
+                                    </Button>
+                                 </children>
+                              </HBox>
+                                  </children>
+                              </HBox>
+                              <HBox prefHeight="31.0" prefWidth="1258.0">
+                                  <children>
+                                      <Button fx:id="brush" mnemonicParsing="false" onAction="#toolselected" text="Activate Brush">
+                                          <HBox.margin>
+                                              <Insets left="20.0" top="5.0" />
+                                          </HBox.margin>
+                                      </Button>
+                              <Label text="Color">
+                                 <HBox.margin>
+                                    <Insets left="10.0" top="5.0" />
+                                 </HBox.margin>
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Label>
+                                      <ColorPicker fx:id="colorpicker">
+                                          <HBox.margin>
+                                              <Insets left="10.0" top="5.0" />
+                                          </HBox.margin>
+                                      </ColorPicker>
+                                      <Label alignment="CENTER" contentDisplay="CENTER" text="Thickness" textAlignment="JUSTIFY">
+                                          <HBox.margin>
+                                              <Insets left="10.0" top="5.0" />
+                                          </HBox.margin>
+                                          <font>
+                                              <Font name="System Bold" size="12.0" />
+                                          </font>
+                                      </Label>
+                                      <TextField fx:id="bsize" promptText="ex : 18">
+                                          <HBox.margin>
+                                              <Insets left="10.0" top="5.0" />
+                                          </HBox.margin>
+                                      </TextField>
+                              <Label text="Eraser">
+                                 <HBox.margin>
+                                    <Insets left="10.0" top="5.0" />
+                                 </HBox.margin>
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Label>
+                                      <CheckBox fx:id="eraser" lineSpacing="5.0" prefHeight="36.0" prefWidth="54.0">
+                                          <HBox.margin>
+                                              <Insets left="10.0" top="1.0" />
+                                          </HBox.margin>
+                                 <padding>
+                                    <Insets bottom="8.0" />
+                                 </padding>
+                                      </CheckBox>
+                                      <Label text="Brush Type">
+                                          <HBox.margin>
+                                              <Insets left="10.0" top="5.0" />
+                                          </HBox.margin>
+                                          <font>
+                                              <Font name="System Bold" size="12.0" />
+                                          </font>
+                                      </Label>
+                                      <ChoiceBox fx:id="brushTypeChoiceBox" prefWidth="100">
+                                          <HBox.margin>
+                                              <Insets left="10.0" top="5.0" />
+                                          </HBox.margin>
+                                      </ChoiceBox>
+                                      <Label text="Zoom">
+                                          <HBox.margin>
+                                              <Insets left="20.0" right="10.0" top="5.0" />
+                                          </HBox.margin>
+                                          <font>
+                                              <Font name="System Bold" size="12.0" />
+                                          </font>
+                                      </Label>
+                                      <HBox spacing="10" style="-fx-border-color: grey; -fx-border-width: 1; -fx-padding: 5;">
+                                          <Button fx:id="zoomInButton" mnemonicParsing="false" text="+" />
+                                          <Button fx:id="zoomOutButton" mnemonicParsing="false" text="-" />
+                                      </HBox>
+                              <Label>
+                                 <HBox.margin>
+                                    <Insets left="20.0" top="5.0" />
+                                 </HBox.margin>
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Label>
+                                  </children>
+                                  <opaqueInsets>
+                                      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                  </opaqueInsets>
+                              </HBox>
+                          </children>
+                      </VBox>
+                      <StackPane fx:id="stackPane" layoutX="5.0" layoutY="106.0" prefHeight="600.0" prefWidth="1261.0" style="-fx-border-color: black; -fx-border-width: 1;">
+                          <children>
+                              <ScrollPane fx:id="scrollPaneCanv" fitToHeight="true" fitToWidth="true" pannable="true" prefHeight="597.0" prefWidth="1259.0">
+                                  <StackPane.margin>
+                                      <Insets />
+                                  </StackPane.margin>
+                                  <content>
+                                      <Group fx:id="canvasGroup">
+                                          <children>
+                                              <Canvas fx:id="canvas" height="594.0" layoutX="21.0" layoutY="-37.0" width="1248.0" />
+                                          </children>
+                                      </Group>
+                                  </content>
+                              </ScrollPane>
+                          </children>
+                      </StackPane>
+                  </children>
+              </Pane>
+        </children>
+      </AnchorPane>
+   </content>
 </ScrollPane>
