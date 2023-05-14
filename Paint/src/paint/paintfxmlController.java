@@ -4,7 +4,9 @@
  */
 package paint;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
@@ -35,9 +37,11 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javax.imageio.ImageIO;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.scene.transform.Scale;
 import javafx.stage.FileChooser;
 
@@ -93,11 +97,6 @@ public class paintfxmlController implements Initializable {
         startX = -1;
         startY = -1;
 
-//        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-//        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-//
-//        scrollContent.prefWidthProperty().bind(canvas.widthProperty());
-//        scrollContent.prefHeightProperty().bind(canvas.heightProperty());
         anchorPane.prefWidthProperty().bind(canvas.widthProperty());
         anchorPane.prefHeightProperty().bind(canvas.heightProperty());
         undoManager = new UndoManager(canvas);
@@ -122,7 +121,7 @@ public class paintfxmlController implements Initializable {
         zoomOutButton.setOnAction(e -> onZoomOut());
 
         brushTool = canvas.getGraphicsContext2D();
-
+        brushTool.setFill(Color.WHITE);
         canvas.setOnMouseReleased(e -> {
             if (currentBrushType.equals("Natural_Pencil")) {
                 startX = -1;
@@ -134,7 +133,12 @@ public class paintfxmlController implements Initializable {
         });
 
         canvas.setOnMouseDragged(this::brushHandler);
+        canvas.setOnDragDetected(event -> {
+            // Disable default dragging behavior
+            canvas.startFullDrag();
+        });
         canvas.addEventFilter(ScrollEvent.ANY, ScrollEvent::consume);
+
     }
 
     @FXML
@@ -216,27 +220,31 @@ public class paintfxmlController implements Initializable {
     }
 
     @FXML
-    public void onSave() {
-        try {
-            Image snapshot = canvas.snapshot(null, null);
-            ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null), "png", new File("paint.png"));
+    private void onSave(ActionEvent event) {
+        FileChooser fileChooser = new FileChooser();
 
-            // Show success message
-            Alert successAlert = new Alert(AlertType.INFORMATION);
-            successAlert.setTitle("Success");
-            successAlert.setHeaderText(null);
-            successAlert.setContentText("Image saved successfully!");
-            successAlert.showAndWait();
+        // Setam extensia implicita la PNG
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("PNG files (*.png)", "*.png");
+        fileChooser.getExtensionFilters().add(extFilter);
 
-        } catch (Exception e) {
-            System.out.println("Failed to save image : " + e);
+        // Afisam fereastra de dialog si asteptam ca utilizatorul sa aleaga un fisier
+        File file = fileChooser.showSaveDialog(null);
 
-            // Show error message
-            Alert errorAlert = new Alert(AlertType.ERROR);
-            errorAlert.setTitle("Error");
-            errorAlert.setHeaderText(null);
-            errorAlert.setContentText("Failed to save image: " + e.getMessage());
-            errorAlert.showAndWait();
+        if (file != null) {
+            try {
+                // Salvam canvas-ul in fisierul selectat de utilizator
+                WritableImage writableImage = new WritableImage((int) canvas.getWidth(), (int) canvas.getHeight());
+                canvas.snapshot(null, writableImage);
+                BufferedImage bImage = SwingFXUtils.fromFXImage(writableImage, null);
+                ImageIO.write(bImage, "png", file);
+            } catch (IOException ex) {
+                // Afisam mesaj de eroare in caz de esec la salvare
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText("Failed to save image");
+                alert.setContentText("Failed to save image: " + ex.getMessage());
+                alert.showAndWait();
+            }
         }
     }
 
